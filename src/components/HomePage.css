@@ -1,0 +1,22 @@
+* {
+    background-color: white;
+}
+
+.para {
+    
+    display: flex;
+    color: black;
+    justify-content: center;
+    align-items: center;
+    margin-top: 225px;
+    font-size: large;
+    font-weight: bold;
+}
+
+.pp {
+    color: white;
+}
+
+.btn {
+    color: white;
+}
