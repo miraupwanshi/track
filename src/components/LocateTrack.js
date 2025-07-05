@@ -2,11 +2,33 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import truckIconImg from "./assets/placehold.png"; // Place this image in src/assets/
+
+// Fix leaflet default marker icon bug (optional for fallback)
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+// Custom truck icon
+const truckIcon = new L.Icon({
+  iconUrl: truckIconImg,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -30]
+});
 
 const LocateTrack = () => {
-  const [vehicleId, setVehicleId] = useState("");       // Input field
+  const [vehicleId, setVehicleId] = useState("");
   const [location, setLocation] = useState(null);
-  const [tracking, setTracking] = useState(false);       // Toggle tracking
+  const [tracking, setTracking] = useState(false);
 
   useEffect(() => {
     if (!tracking || !vehicleId) return;
@@ -17,6 +39,7 @@ const LocateTrack = () => {
           `https://locationtracker-m9ig.onrender.com/api/latest-location/${vehicleId}`
         );
         setLocation(response.data);
+        console.log("Fetched location:", response.data);
       } catch (error) {
         console.error("Failed to fetch location:", error.message);
       }
@@ -55,14 +78,17 @@ const LocateTrack = () => {
         </button>
       </div>
 
-      {location ? (
+      {location && location.latitude && location.longitude ? (
         <MapContainer
           center={[location.latitude, location.longitude]}
           zoom={13}
           style={{ height: "85%", width: "100%" }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Marker position={[location.latitude, location.longitude]}>
+          <Marker
+            position={[location.latitude, location.longitude]}
+            icon={truckIcon}
+          >
             <Popup>
               <b>{location.vehicleId}</b><br />
               {new Date(location.timestamp).toLocaleString()}
